@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +16,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    //return view('welcome');
+
+    return view('login');
+});
+
+Route::post('dologin', [LoginController::class, 'doLogin'])->name('doLogin'); //Admin帳號登入
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('index', [TestController::class, 'index'])->name('index'); //Admin帳號登入
 });
