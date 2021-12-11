@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\TestController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,13 +17,13 @@ use App\Http\Controllers\TestController;
 */
 
 Route::get('/', function () {
-    //return view('welcome');
-
-    return view('login');
+    return view('auth.login');
 });
-
-Route::post('dologin', [LoginController::class, 'doLogin'])->name('doLogin'); //Admin帳號登入
+Route::get('home', [HomeController::class, 'index'])->name('home'); //Admin帳號登入
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('index', [TestController::class, 'index'])->name('index'); //Admin帳號登入
+    Route::get('task', [TaskController::class, 'index'])->name('task.index'); //Admin帳號登入
 });
+
+
+Auth::routes();
