@@ -85,8 +85,7 @@
             url: "{{ route('task.delete',['id'=>'id'] ) }}".replace('id', id),
             type: 'delete',
             headers: {
-                'Authorization': '{{Auth()->user()->api_token}}',
-                'Accept': 'application/json'
+                'token': '{{Auth()->user()->api_token}}',
             },
             success: function(response) {
                 location.reload();

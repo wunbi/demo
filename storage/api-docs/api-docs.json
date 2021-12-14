@@ -15,6 +15,57 @@
                     }
                 }
             }
+        },
+        "/api/task/{taskId}": {
+            "delete": {
+                "tags": [
+                    "Task"
+                ],
+                "summary": "Delete Task",
+                "description": "刪除task",
+                "operationId": "deleteTask",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "in": "path",
+                        "description": "需要任務id來刪除",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "header",
+                        "description": "ajax 帶 api token",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid taskId supplied"
+                    },
+                    "404": {
+                        "description": "Task not found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "Authorization": {
+                "name": "Authorization",
+                "in": "header",
+                "description": "ajax请求要加上X-Requested-With:XMLHttpRequest头字段",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            }
         }
     },
     "security": [

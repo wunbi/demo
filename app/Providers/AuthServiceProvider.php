@@ -30,8 +30,8 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
         $request = $this->app['request'];
 
-        if ($request->header('Authorization')) {
-            $user = User::where('api_token', $request->header('Authorization'))->first();
+        if ($request->header('token')) {
+            $user = User::where('api_token', $request->header('token'))->first();
             Auth::login($user);
         }
     }

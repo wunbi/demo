@@ -105,7 +105,43 @@ class TaskController extends Controller
 
         return $redirect->with('success', '成功');
     }
+    /**
+     * @OA\delete(
+     *     path="/api/task/{taskId}",
+     *     tags={"Task"},
+     *     summary="Delete Task",
+     *     description="刪除task",
+     *     operationId="deleteTask",
+     *     @OA\Parameter(
+     *         name="taskId",
+     *         in="path",
+     *         description="需要任務id來刪除",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
 
+     *      @OA\Parameter(
+     *          in="header",
+     *          name="token",
+     *          description="ajax 帶 api token",
+     *          required=true,
+     *          @OA\Schema(
+     *          type="string",
+     *          )
+     *      ),
+     *
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid taskId supplied",
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Task not found",
+     *     )
+     * )
+     */
     public function delete(Request $request, $id)
     {
         if (!$task = $this->taskService->firstBy('id', $id)) {
