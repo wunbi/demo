@@ -34,16 +34,18 @@ class UserGroupController extends Controller
         }
 
         $data = UserGroup::paginate(15);
-        return view('userGroup.index', ['data' => $data]);
-    }
 
-    public function create(Request $request)
-    {
-        if (!Auth::user()->isSuperAdmin()) {
-            return redirect()->route('home')->with('error', '沒有權限');
-        }
+        $userGroup = $data->getCollection()
+            ->map(function ($item) {
+                return $item->toArray();
+            })->toArray();
 
-        return view('userGroup.edit');
+
+        return view('userGroup.index', [
+            'data' => $data,
+            'userGroup' => $userGroup,
+            'isSuperAdmin' => Auth::user()->isSuperAdmin()
+        ]);
     }
 
     public function edit(Request $request, $id)

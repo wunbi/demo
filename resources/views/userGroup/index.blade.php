@@ -3,24 +3,15 @@
 @section('content')
 
 
-<div class="card">
+<div class="card" id="card">
     <div class="card-heading bg-primary text-white d-flex mb-4 p-2">
         <h3 class="flex-grow-1"><i class="fa fa-bank"></i>
             會員列表
         </h3>
     </div>
 
-    <div class="col-xs-2">
-        <br>
-        <div class="btn-group">
-
-            @if(Auth::user()->isSuperAdmin())
-            <button type="button" class="btn btn-default" onclick="addUserGroup()">創建群組</button>
-            @endif
-        </div>
-    </div>
     <div class="card-body">
-        <table id="PermissionList" class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -29,17 +20,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($data as $value)
-                <tr>
-                    <td>{{$value->id}}</td>
-                    <td>{{$value->group_name}}</td>
+                <tr v-for="userGroup in userGroups" :key="userGroup.id">
+                    <td>@{{userGroup.id}}</td>
+                    <td>@{{userGroup.group_name}}</td>
                     <td>
-                        @if($value->group_name != 'superAdmin' )
-                        <button type="button" class="btn btn-default" onclick="editUserGroup('{{$value->id}}')">調整</button>
-                        @endif
+                        <button type="button" class="btn btn-default" @click="editUserGroup(userGroup.id)"
+                        v-if="userGroup.group_name != 'superAdmin'">調整</button>
                     </td>
                 </tr>
-                @endforeach
             </tbody>
         </table>
     </div>
@@ -48,14 +36,24 @@
 </div>
 
 
-<script>
-    function addUserGroup() {
-        location.href = "{{ route('userGroup.create') }}";
-    }
+<script type="module">
+    import Vue from 'https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.esm.browser.js'
 
+    var vm = new Vue({
+        el: '#card',
+        data: {
+            userGroups: JSON.parse(`{!! json_encode($userGroup) !!}`),
+        },
+        methods: {
+            addUserGroup: function() {
+                location.href = "{{ route('userGroup.create') }}";
+            },
+            editUserGroup: function(id) {
+                location.href = "{{ route('userGroup.edit',['id'=>'id'] ) }}".replace('id', id);
+            },
 
-    function editUserGroup(id) {
-        location.href = "{{ route('userGroup.edit',['id'=>'id'] ) }}".replace('id', id);
-    }
+        }
+    })
 </script>
+
 @endsection
