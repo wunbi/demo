@@ -7,7 +7,7 @@
 </li>
 
 
-@if (Auth::user()->isSuperAdmin()) {
+@if (Auth::user()->isSuperAdmin())
 <li class="nav-item">
     <a href="{{ route('user.index') }}" class="nav-link">
         <i class="nav-icon fas fa-user-plus"></i>
@@ -35,6 +35,17 @@
         <i class="nav-icon fas fa-th"></i>
         <p>
             任務列表
+        </p>
+    </a>
+</li>
+@endif
+
+@if (Auth::user()->isSuperAdmin())
+<li class="nav-item">
+    <a href="{{ url('/api/documentation') }}" class="nav-link">
+        <i class="nav-icon fas fa-book"></i>
+        <p>
+            swagger
         </p>
     </a>
 </li>
