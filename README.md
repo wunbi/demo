@@ -8,13 +8,13 @@ db新增一個demo database
 
 複製.env.example檔案另取名為.env
 
-.env檔案中修改
+.env檔案中修改:
 
 APP_URL為專案URL路徑
 
 DB_HOST為測試DB IP 位址
 
-執行以下命令
+執行以下命令:
 ```
 php artisan key:generate //產生專案APP_KEY
 ```
