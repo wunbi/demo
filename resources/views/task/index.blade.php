@@ -3,7 +3,7 @@
 @section('content')
 
 
-<div class="card">
+<div class="card" id="card">
     <div class="card-heading bg-primary text-white d-flex mb-4 p-2">
         <h3 class="flex-grow-1"><i class="fa fa-bank"></i>
             任務列表
@@ -13,20 +13,9 @@
     <div class="col-xs-2">
         <br>
         <div class="btn-group">
-
-            @if(Auth::user()->has('bugTask','create'))
-            <button type="button" class="btn btn-default" onclick="addTask('bugTask')">創建bug單</button>
-            @endif
-
-
-            @if(Auth::user()->has('featureTask','create'))
-            <button type="button" class="btn btn-default" onclick="addTask('featureTask')">創建需求單</button>
-            @endif
-
-
-            @if(Auth::user()->has('testTask','create'))
-            <button type="button" class="btn btn-default" onclick="addTask('testTask')">創建測試單</button>
-            @endif
+            <button type="button" class="btn btn-default" @click="addTask('bugTask')" v-if="canCreateBugTask">創建bug單</button>
+            <button type="button" class="btn btn-default" @click="addTask('featureTask')" v-if="canCreateFeatureTask">創建需求單</button>
+            <button type="button" class="btn btn-default" @click="addTask('testTask')" v-if="canCreateTestTask">創建測試單</button>
         </div>
     </div>
     <div class="card-body">
@@ -42,22 +31,18 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($data as $row)
-                <tr>
-                    <td>{{$row->id}}</td>
-                    <td>{{$row->task_type}}</td>
-                    <td>{{$row->title}}</td>
-                    <td>{{$row->content}}</td>
-                    <td>{{$row->created_at}}</td>
+                <tr v-for="task in tasks" :key="task.id">
+                    <td>@{{task.id}}</td>
+                    <td>@{{task.task_type}}</td>
+                    <td>@{{task.title}}</td>
+                    <td>@{{task.content}}</td>
+                    <td>@{{task.created_at}}</td>
                     <td>
-                        <button type="button" class="btn btn-primary" onclick="editTask('{{$row->id}}')">調整</button>
+                        <button type="button" class="btn btn-primary" @click="editTask(task.id)" v-if="task.canUpdate">調整</button>
 
-                        @if(Auth::user()->has($row->task_type, 'delete'))
-                        <button type="button" class="btn btn-danger" onclick="deleteTask('{{$row->id}}')">刪除</button>
-                        @endif
+                        <button type="button" class="btn btn-danger" @click="deleteTask(task.id)"  v-if="task.canDelete">刪除</button>
                     </td>
                 </tr>
-                @endforeach
             </tbody>
         </table>
     </div>
@@ -67,31 +52,37 @@
 <script type="module">
     import Vue from "https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.esm.browser.js"
 
-    console.log('test');
-</script>
+    var vm = new Vue({
 
-
-<script>
-    function addTask(action) {
-        location.href = "{{ route('task.create',['action'=>'action'] ) }}".replace('action', action);
-    }
-
-    function editTask(id) {
-        location.href = "{{ route('task.edit',['id'=>'id'] ) }}".replace('id', id);
-    }
-
-    function deleteTask(id) {
-        $.ajax({
-            url: "{{ route('task.delete',['id'=>'id'] ) }}".replace('id', id),
-            type: 'delete',
-            headers: {
-                'token': '{{Auth()->user()->api_token}}',
+        el: '#card',
+        data: {
+            tasks: JSON.parse(`{!! json_encode($tasks) !!}`),
+            canCreateBugTask: `{{ $canCreateBugTask }}`,
+            canCreateFeatureTask: `{{ $canCreateFeatureTask }}`,
+            canCreateTestTask: `{{ $canCreateTestTask }}`,
+        },
+        methods: {
+            addTask: function(action) {
+                location.href = "{{ route('task.create',['action'=>'action'] ) }}".replace('action', action);
             },
-            success: function(response) {
-                location.reload();
-                //...
-            }
-        });
-    }
+            editTask: function(taskId) {
+                location.href = "{{ route('task.edit',['id'=>'id'] ) }}".replace('id', taskId);
+            },
+            deleteTask: function(taskId) {
+                $.ajax({
+                    url: "{{ route('task.delete',['id'=>'id'] ) }}".replace('id', taskId),
+                    type: 'delete',
+                    headers: {
+                        'token': '{{Auth()->user()->api_token}}',
+                    },
+                    success: function(response) {
+                        location.reload();
+                        //...
+                    }
+                });
+            },
+
+        }
+    })
 </script>
 @endsection

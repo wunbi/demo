@@ -9,11 +9,11 @@
         </h3>
     </div>
 
-    <div class="card-body">
+    <div class="card-body" id="card">
         <form id="data-form" method="post" action="{{ route('task.update') }}">
             @csrf
 
-            <input type="hidden" name="id" value="{{$row->id ?? -1}}">
+            <input type="hidden" name="id" v-model="task.id">
 
             <input type="hidden" name="task_type" value="{{$taskType}}">
             <table class="table table-bordered table-striped" style="width:100%;">
@@ -22,27 +22,15 @@
                     <tr>
                         <td>title</td>
                         <td>
-                            <input type="int" name="title" class="form-control" value="{{$row->title ?? ''}}" required>
+                            <input type="int" name="title" class="form-control" v-model="task.title" required>
                         </td>
                     </tr>
 
                     <tr>
                         <td>嚴重度</td>
                         <td>
-                            <select name="severe_level" class="form-control" value="{{$row->severe_level ?? ''}}">
-                                <option value="1" @if(($row->severe_level ?? '') == 1)
-                                    selected
-                                    @endif
-                                    >1</option>
-                                <option value="2" @if(($row->severe_level ?? '') == 2)
-                                    selected
-                                    @endif>2</option>
-                                <option value="3" @if(($row->severe_level ?? '') == 3)
-                                    selected
-                                    @endif>3</option>
-                                <option value="4" @if(($row->severe_level ?? '') == 4)
-                                    selected
-                                    @endif>4</option>
+                            <select name="severe_level" class="form-control" v-model="task.severe_level" required>
+                                <option v-for="severeLevel in severeLevels" :value="severeLevel">@{{severeLevel}}</option>
                             </select>
                         </td>
                     </tr>
@@ -50,19 +38,8 @@
                     <tr>
                         <td>優先權</td>
                         <td>
-                            <select name="priority_level" class="form-control" value="{{$row->priority_level ?? ''}}">
-                                <option value="1" @if(($row->priority_level ?? '') == 1)
-                                    selected
-                                    @endif>1</option>
-                                <option value="2" @if(($row->priority_level ?? '') == 2)
-                                    selected
-                                    @endif>2</option>
-                                <option value="3" @if(($row->priority_level ?? '') == 3)
-                                    selected
-                                    @endif>3</option>
-                                <option value="4" @if(($row->priority_level ?? '') == 4)
-                                    selected
-                                    @endif>4</option>
+                            <select name="priority_level" class="form-control" v-model="task.priority_level" required>
+                                <option v-for="priorityLevel in priorityLevels" :value="priorityLevel">@{{priorityLevel}}</option>
                             </select>
                         </td>
                     </tr>
@@ -70,30 +47,15 @@
                     <tr>
                         <td>狀態</td>
                         <td>
-                            <select name="status" class="form-control" value="{{$row->status ?? 0}}">
-
-
-                                <option value="0" @if(($row->status ?? '0') == 0)
-                                    selected
-                                    @endif
-                                    @if(!Auth::user()->isGroup('qa'))
-                                    disabled
-                                    @endif
-                                    >尚未完成</option>
-
-                                <option value="1" @if(($row->status ?? '1') == 1)
-                                    selected
-                                    @endif
-                                    @if(!Auth::user()->isGroup('rd'))
-                                    disabled
-                                    @endif>完成</option>
+                            <select name="status" class="form-control" v-model="task.status" required>
+                                <option v-for="state in status" :value="state.value" :disabled="!state.canSelect" >@{{state.name}}</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td>內容</td>
                         <td>
-                            <textarea name="content" class="form-control" cols="30" rows="10" required>{{$row->content ?? ''}}</textarea>
+                            <textarea name="content" class="form-control" cols="30" rows="10" required>@{{task.content }}</textarea>
                         </td>
                     </tr>
                     <td colspan="2" align="right">
@@ -111,6 +73,26 @@
 <script type="module">
     import Vue from "https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.esm.browser.js"
 
-    console.log(' test');
+    var vm = new Vue({
+
+        el: '#card',
+        data: {
+            task: JSON.parse(`{!! json_encode($task) !!}`),
+            severeLevels : [1, 2, 3, 4, 5],
+            priorityLevels : [1, 2, 3, 4, 5],
+            status : [{
+                    value: 0,
+                    name: "尚未完成",
+                    canSelect : `{{ Auth::user()->isGroup('qa') }}`
+                },
+                {
+                    value: 1,
+                    name: "已完成",
+                    canSelect : `{{ Auth::user()->isGroup('rd') }}`
+                }
+            ]
+
+        }
+    })
 </script>
 @endsection

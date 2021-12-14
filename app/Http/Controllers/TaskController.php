@@ -29,25 +29,55 @@ class TaskController extends Controller
             return redirect()->route('home')->with('error', '沒有權限');
         }
 
-        $data = Task::whereIn('task_type', $types)->paginate(1);
+        $data = Task::whereIn('task_type', $types)->paginate(15);
+        $tasks = $data->getCollection()
+            ->map(function ($item) {
+                $tmp = $item->toArray();
+                $tmp['created_at'] = date('Y-m-d H:i:s', strtotime($tmp['created_at']));
+
+                switch ($tmp['task_type']) {
+                    case 'bugTask':
+                        $tmp['canUpdate'] = Auth::user()->has('bugTask', 'update');
+                        $tmp['canDelete'] = Auth::user()->has('bugTask', 'delete');
+                        break;
+
+                    case 'featureTask':
+                        $tmp['canUpdate'] = Auth::user()->has('featureTask', 'update');
+                        $tmp['canDelete'] = Auth::user()->has('featureTask', 'delete');
+                        break;
+
+                    case 'testTask':
+                        $tmp['canUpdate'] = Auth::user()->has('testTask', 'update');
+                        $tmp['canDelete'] = Auth::user()->has('testTask', 'delete');
+                        break;
+                }
+
+                return $tmp;
+            })->toArray();
+
+
         return view('task.index', [
-            'data' => $data
+            'data' => $data,
+            'tasks' => $tasks,
+            'canCreateBugTask' => Auth::user()->has('bugTask', 'create'),
+            'canCreateFeatureTask' => Auth::user()->has('featureTask', 'create'),
+            'canCreateTestTask' => Auth::user()->has('testTask', 'create'),
         ]);
     }
 
     public function create(Request $request, $action)
     {
-        if (Auth::user()->has($action, 'create')) {
-            return view(
-                'task.edit',
-                [
-                    'taskType' => $action,
-                    'row' => null
-                ]
-            );
+        if (!Auth::user()->has($action, 'create')) {
+            return redirect()->route('home')->with('error', '沒有權限');
         }
 
-        return redirect()->route('home')->with('error', '沒有權限');
+        return view(
+            'task.edit',
+            [
+                'taskType' => $action,
+                'task' => []
+            ]
+        );
     }
 
     public function edit(Request $request, $id)
@@ -62,14 +92,14 @@ class TaskController extends Controller
             'task.edit',
             [
                 'taskType' => $task->task_type,
-                'row' => $task
+                'task' => $task
             ]
         );
     }
 
     public function update(Request $request)
     {
-        if (!$task = $this->taskService->firstBy('id', $request->get('id'))) {
+        if (empty($request->get('id')) || !$task = $this->taskService->firstBy('id', $request->get('id'))) {
             $task = $this->taskService->new();
         }
 
