@@ -28,7 +28,15 @@ class UserController extends Controller
         }
 
         $data = User::paginate(15);
-        return view('user.index', ['data' => $data]);
+        $users = $data->getCollection()
+            ->map(function ($item) {
+                $tmp = $item->toArray();
+                $tmp['created_at'] = date('Y-m-d H:i:s', strtotime($tmp['created_at']));
+                return $tmp;
+            })->toArray();
+
+
+        return view('user.index', ['data' => $data, 'users' => $users, 'canCreateUser' => Auth::user()->has('user', 'create')]);
     }
 
     public function create(Request $request)
@@ -40,8 +48,8 @@ class UserController extends Controller
         return view(
             'user.edit',
             [
-                'row' => null,
-                'userGroups' => $this->userGroupService->all()
+                'user' => [],
+                'userGroups' => $this->userGroupService->all()->toArray()
             ]
         );
     }
@@ -59,8 +67,8 @@ class UserController extends Controller
         return view(
             'user.edit',
             [
-                'row' => $user,
-                'userGroups' => $this->userGroupService->all()
+                'user' => $user,
+                'userGroups' => $this->userGroupService->all()->toArray()
             ]
         );
     }
@@ -72,7 +80,7 @@ class UserController extends Controller
             return redirect()->route('home')->with('error', '沒有權限');
         }
 
-        if (!$user = $this->userService->firstBy('id', $request->get('id'))) {
+        if (empty($request->get('id')) || !$user = $this->userService->firstBy('id', $request->get('id'))) {
             $user = $this->userService->new();
         }
 
