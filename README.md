@@ -16,13 +16,13 @@ DB_HOST為測試DB IP 位址
 
 執行以下命令:
 ```
-php artisan key:generate //產生專案APP_KEY
+$ php artisan key:generate //產生專案APP_KEY
 ```
 ```
-composer install //安裝 php套件
+$ composer install //安裝 php套件
 ```
 ```
-php artisan migrate:fresh --seed //建立TABLE及測試資料
+$ php artisan migrate:fresh --seed //建立TABLE及測試資料
 ```
 
 
